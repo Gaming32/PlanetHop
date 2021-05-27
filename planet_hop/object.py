@@ -7,9 +7,9 @@ from planet_hop.physics_applied import PhysicsApplied
 
 
 class Object(PhysicsApplied):
-    def render(self, surf: Surface, radius: float):
+    def render(self, surf: Surface, radius: float, color: Color):
         pygame.draw.circle(
             surf,
-            (0, 0, 255),
-            (self.position - globals.camera) * globals.zoom + globals.camera_offset,
+            color,
+            (globals.camera - self.position) * globals.zoom + globals.camera_offset,
             radius * globals.zoom)

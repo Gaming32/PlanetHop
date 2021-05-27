@@ -1,9 +1,11 @@
-from pygravity.twod.gravity import GravityContainer
+from planet_hop.planet import Planet
+from pygravity.twod.gravity import GravityCaster, GravityContainer
 
 from planet_hop import globals
 from planet_hop.constants import *
 from planet_hop.pgimports import *
 from planet_hop.player import Player
+from pygravity.twod import Vector2 as GravVector2
 
 pygame.init()
 
@@ -16,6 +18,7 @@ globals.fullscreen = False
 
 globals.container = GravityContainer()
 globals.player = Player(globals.container)
+globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (0, 255, 0))]
 
 globals.camera_offset = Vector2(*globals.win_size.size) / 2
 globals.camera = Vector2()
@@ -53,6 +56,10 @@ while running:
             globals.camera_offset = Vector2(*globals.win_size.size) / 2
 
     screen.fill((0, 0, 0))
+
+    for planet in globals.planets:
+        planet.update(delta)
+        planet.render(screen)
 
     globals.player.update(delta)
     globals.player.render(screen)

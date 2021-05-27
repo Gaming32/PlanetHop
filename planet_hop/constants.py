@@ -3,4 +3,4 @@ from planet_hop.pgimports import *
 SCREEN_FLAGS = RESIZABLE
 GAME_TITLE = 'PlanetHop'
 
-CAMERA_LERP = 0.1
+CAMERA_LERP = 1
