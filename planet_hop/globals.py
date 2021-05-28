@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from planet_hop.pgimports import *
     from planet_hop.player import Player
     from planet_hop.planet import Planet
+    from planet_hop.small_object import SmallObject
     from planet_hop.types import Coroutine
 
 screen: Surface
@@ -17,6 +18,7 @@ fullscreen: bool
 container: GravityContainer
 player: Player
 planets: list[Planet]
+objects: list[SmallObject]
 
 camera_offset: Vector2
 view_size: Rect

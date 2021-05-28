@@ -14,7 +14,7 @@ class Planet(Object):
     atmosphere: float
     atmosphere_color: Color
 
-    def __init__(self, container: GravityContainer, positon: GravVector2, mass: float, radius: float, color: Color, atmosphere: float, atmosphere_color: Color):
+    def __init__(self, container: GravityContainer, positon: GravVector2, mass: float, radius: float, color: Color, atmosphere: float = 0, atmosphere_color: Color = (0, 0, 0)):
         super().__init__(container, positon, mass)
         self.radius = radius
         self.color = color

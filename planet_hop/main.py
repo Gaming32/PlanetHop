@@ -1,4 +1,6 @@
 import math as pymath
+from planet_hop.bounce import Bouncy
+from planet_hop.small_object import SmallObject
 
 from planet_hop.planet import Planet
 from pygravity.twod.gravity import GravityCaster, GravityContainer
@@ -23,7 +25,17 @@ globals.fullscreen = False
 
 globals.container = GravityContainer()
 globals.player = Player(globals.container)
-globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (86, 176, 0), 6_400_000, (135, 206, 235))]
+globals.planets = [
+    Planet(globals.container, GravVector2(0, 0), 1.989e30, 696_340_000, (252, 150, 1)),
+    Planet(globals.container, GravVector2(-149_600_000_000, 0), 5.972e+24, 6_371_000, (86, 176, 0), 6_400_000, (135, 206, 235)),
+]
+globals.planets[1].physics.add_velocity_vector(GravVector2(0, -30000)) # Earth
+globals.objects = [
+    globals.player,
+    Bouncy(globals.container, GravVector2(-149_600_000_005, 6_371_010), 70, 1, (255, 0, 0)),
+]
+for object_ in globals.objects:
+    object_.post_init()
 
 globals.camera_offset = Vector2(*globals.view_size.size) / 2
 globals.camera = Vector2(globals.player.position)
@@ -39,10 +51,7 @@ def get_box_offset() -> Vector2:
 
 
 def get_rotation() -> float:
-    return -(min(
-            globals.planets,
-            key=(lambda p: (p.position - globals.player.position).sqr_magnitude())
-        ).position - globals.player.position).direction() - 90
+    return -(globals.player.closest.position - globals.player.position).direction() - 90
 
 
 render_box = Surface(globals.view_size.size)
@@ -116,16 +125,21 @@ while running:
 
     for planet in globals.planets:
         planet.update(delta)
-        planet.render(render_box)
+    for object_ in globals.objects:
+        object_.update(delta)
 
-    globals.player.update(delta)
-    globals.player.render(render_box)
+    globals.camera.update(globals.player.position)
+    for planet in globals.planets:
+        planet.render(render_box)
+    for object_ in globals.objects:
+        object_.render(render_box)
 
     preferred_rotation = get_rotation()
     rot_delta = (preferred_rotation - globals.rotation + 180) % 360 - 180
     rot_delta = max(min(rot_delta, ROTATION_SPEED_MAX), -ROTATION_SPEED_MAX) + max(min(rot_delta, ROTATION_SPEED_MIN), -ROTATION_SPEED_MIN)
     globals.rotation += rot_delta * delta
     print(f'{clock.get_fps():6.2f}  {globals.player.position}  {globals.player.physics.velocity}', end='\r')
+    # print(f'{clock.get_fps():6.2f}  {globals.planets[1].position}  {globals.planets[1].physics.velocity}', end='\r')
     screen.blit(render_box, box_offset)
 
     pygame.display.update()
