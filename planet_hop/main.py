@@ -23,7 +23,7 @@ globals.fullscreen = False
 
 globals.container = GravityContainer()
 globals.player = Player(globals.container)
-globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (0, 255, 0), 6_400_000)]
+globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (86, 176, 0), 6_400_000, (135, 206, 235))]
 
 globals.camera_offset = Vector2(*globals.view_size.size) / 2
 globals.camera = Vector2(globals.player.position)
