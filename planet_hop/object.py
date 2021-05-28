@@ -11,5 +11,5 @@ class Object(PhysicsApplied):
         pygame.draw.circle(
             surf,
             color,
-            (globals.camera - self.position) * globals.zoom + globals.camera_offset,
+            (globals.camera - self.position).rotate(globals.rotation) * globals.zoom + globals.camera_offset,
             radius * globals.zoom)

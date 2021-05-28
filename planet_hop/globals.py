@@ -19,8 +19,11 @@ player: Player
 planets: list[Planet]
 
 camera_offset: Vector2
+view_size: Rect
+
 camera: Vector2
 zoom: float
+rotation: float
 
 delta: float
 coroutines: list[Coroutine]
