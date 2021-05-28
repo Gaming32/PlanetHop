@@ -36,11 +36,18 @@ def get_box_offset() -> Vector2:
     return -1 * (globals.camera_offset - Vector2(globals.win_size.size) / 2)
 
 
+def get_rotation() -> float:
+    return (min(
+            globals.planets,
+            key=(lambda p: (p.position - globals.player.position).sqr_magnitude())
+        ).position - globals.player.position).direction() + 90
+
+
 render_box = Surface(globals.view_size.size)
 box_offset = get_box_offset()
 
 
-globals.rotation = 0
+globals.rotation = get_rotation()
 
 
 def rot_center(image, angle):
@@ -91,9 +98,9 @@ while running:
     globals.player.update(delta)
     globals.player.render(render_box)
 
-    preferred_rotation = (min(globals.planets, key=(lambda p: (p.position - globals.player.position).sqr_magnitude())).position - globals.player.position).direction() + 90
+    preferred_rotation = get_rotation()
     globals.rotation = (globals.rotation + (preferred_rotation - globals.rotation) * ROTATION_LERP * delta + 180) % 360 - 180
-    print(clock.get_fps(), '                              ', end='\r')
+    print(f'{clock.get_fps():.2f}                      ', end='\r')
     screen.blit(render_box, box_offset)
 
     pygame.display.update()
