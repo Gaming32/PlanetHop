@@ -11,11 +11,13 @@ from planet_hop.pgimports import *
 class Planet(Object):
     radius: float
     color: Color
+    atmosphere: float
 
-    def __init__(self, container: GravityContainer, positon: GravVector2, mass: float, radius: float, color: Color):
+    def __init__(self, container: GravityContainer, positon: GravVector2, mass: float, radius: float, color: Color, atmosphere: float):
         super().__init__(container, positon, mass)
         self.radius = radius
         self.color = color
+        self.atmosphere = atmosphere
 
     def render(self, surf: Surface):
         render_radius = self.radius * globals.zoom

@@ -24,6 +24,8 @@ view_size: Rect
 camera: Vector2
 zoom: float
 rotation: float
+freecam: bool
 
 delta: float
+pressed_keys: set[int]
 coroutines: list[Coroutine]

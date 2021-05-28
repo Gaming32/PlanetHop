@@ -23,12 +23,14 @@ globals.fullscreen = False
 
 globals.container = GravityContainer()
 globals.player = Player(globals.container)
-globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (0, 255, 0))]
+globals.planets = [Planet(globals.container, GravVector2(0, -6_371_010), 5.972e+24, 6_371_000, (0, 255, 0), 6_400_000)]
 
 globals.camera_offset = Vector2(*globals.view_size.size) / 2
-globals.camera = Vector2()
+globals.camera = Vector2(globals.player.position)
 globals.zoom = 10
+globals.freecam = False
 
+globals.pressed_keys = set()
 globals.coroutines = []
 
 
@@ -37,10 +39,10 @@ def get_box_offset() -> Vector2:
 
 
 def get_rotation() -> float:
-    return (min(
+    return -(min(
             globals.planets,
             key=(lambda p: (p.position - globals.player.position).sqr_magnitude())
-        ).position - globals.player.position).direction() + 90
+        ).position - globals.player.position).direction() - 90
 
 
 render_box = Surface(globals.view_size.size)
@@ -72,6 +74,7 @@ while running:
         if event.type == QUIT:
             running = False
         elif event.type == KEYDOWN:
+            globals.pressed_keys.add(event.key)
             if event.key == K_F11:
                 globals.fullscreen = not globals.fullscreen
                 if globals.fullscreen:
@@ -85,11 +88,31 @@ while running:
                 globals.screen = screen
                 globals.win_size = screen.get_rect()
                 box_offset = get_box_offset()
+            elif event.key == K_F12:
+                globals.freecam = not globals.freecam
+                if not globals.freecam:
+                    globals.camera_offset = Vector2(*globals.view_size.size) / 2
+        elif event.type == KEYUP:
+            globals.pressed_keys.discard(event.key)
         elif event.type == VIDEORESIZE:
             globals.win_size = screen.get_rect()
             box_offset = get_box_offset()
 
     render_box.fill((0, 0, 0))
+
+    if globals.freecam:
+        if K_UP in globals.pressed_keys:
+            globals.camera_offset.y += 200 * delta
+        if K_DOWN in globals.pressed_keys:
+            globals.camera_offset.y -= 200 * delta
+        if K_LEFT in globals.pressed_keys:
+            globals.camera_offset.x += 200 * delta
+        if K_RIGHT in globals.pressed_keys:
+            globals.camera_offset.x -= 200 * delta
+        if K_KP0 in globals.pressed_keys:
+            globals.zoom /= pow(5, delta)
+        if K_KP1 in globals.pressed_keys:
+            globals.zoom *= pow(5, delta)
 
     for planet in globals.planets:
         planet.update(delta)
@@ -99,8 +122,10 @@ while running:
     globals.player.render(render_box)
 
     preferred_rotation = get_rotation()
-    globals.rotation = (globals.rotation + (preferred_rotation - globals.rotation) * ROTATION_LERP * delta + 180) % 360 - 180
-    print(f'{clock.get_fps():.2f}                      ', end='\r')
+    rot_delta = (preferred_rotation - globals.rotation + 180) % 360 - 180
+    rot_delta = max(min(rot_delta, ROTATION_SPEED_MAX), -ROTATION_SPEED_MAX) + max(min(rot_delta, ROTATION_SPEED_MIN), -ROTATION_SPEED_MIN)
+    globals.rotation += rot_delta * delta
+    print(f'{clock.get_fps():6.2f}  {globals.player.position}  {globals.player.physics.velocity}', end='\r')
     screen.blit(render_box, box_offset)
 
     pygame.display.update()
