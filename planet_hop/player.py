@@ -14,6 +14,7 @@ from pygravity.twod import Vector2 as GravVector2
 # isort: on
 
 
+MOVEMENT_SPEED = 10
 JUMP_SPEED = 150
 JUMP_TIME = 5
 
@@ -27,7 +28,6 @@ class Player(SmallObject):
         self.on_ground = False
 
     def step(self, time_passed: float) -> tuple[Vector2, Vector2]:
-        self.position.set_to(*(self.closest.position + self.rel))
         dv, movement = super().step(time_passed)
         if K_a in globals.pressed_keys:
             self.physics.velocity += Vector2(MOVEMENT_SPEED, 0).rotate(-globals.rotation) * time_passed
@@ -43,9 +43,9 @@ class Player(SmallObject):
                 self.on_ground = True
                 self.jump_time = JUMP_TIME
                 self.position.set_to(*(planet.position + GravVector2.from_direction_magnitude(dir, 1 + planet.radius)))
-                self.physics.velocity /= GROUND_FRICTION * time_passed
+                self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, GROUND_FRICTION, time_passed))
             elif dist < 1 + planet.atmosphere:
-                self.physics.velocity /= AIR_FRICTION * time_passed
+                self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, AIR_FRICTION, time_passed))
                 self.jump_time -= 1
         self.update_closest()
         return dv, movement

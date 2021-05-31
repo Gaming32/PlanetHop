@@ -13,9 +13,12 @@ from pygravity.twod import Vector2 as GravVector2
 # isort: on
 
 
-MOVEMENT_SPEED = 10
-GROUND_FRICTION = 51.5
-AIR_FRICTION = 50.1
+GROUND_FRICTION = 51.0
+AIR_FRICTION = 50.3
+
+
+def evaluate_friction(v1: GravVector2, v2: GravVector2, f: float, t: float):
+    return (v1 - v2) / (f * t) + v2
 
 
 class SmallObject(Object):
@@ -32,18 +35,17 @@ class SmallObject(Object):
         self.on_ground = False
 
     def step(self, time_passed: float) -> tuple[Vector2, Vector2]:
-        self.position.set_to(*(self.closest.position + self.rel))
         dv, movement = super().step(time_passed)
         self.on_ground = False
         for planet in globals.planets:
             rel: GravVector2 = self.position - planet.position
             dir, dist = rel.as_direction_magnitude()
             if dist < self.radius + planet.radius:
-                self.position.set_to(*(planet.position + GravVector2.from_direction_magnitude(dir, self.radius + planet.radius)))
-                self.physics.velocity /= GROUND_FRICTION * time_passed
                 self.on_ground = True
+                self.position.set_to(*(planet.position + GravVector2.from_direction_magnitude(dir, self.radius + planet.radius)))
+                self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, GROUND_FRICTION, time_passed))
             elif dist < self.radius + planet.atmosphere:
-                self.physics.velocity /= AIR_FRICTION * time_passed
+                self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, AIR_FRICTION, time_passed))
         self.update_closest()
         return dv, movement
 

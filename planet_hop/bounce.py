@@ -18,5 +18,7 @@ class Bouncy(SmallObject):
     def step(self, time_passed: float) -> tuple[Vector2, Vector2]:
         res = super().step(time_passed)
         if self.on_ground:
-            self.physics.velocity *= -1
+            self.physics.velocity.set_to(*(
+                (self.physics.velocity - self.closest.physics.velocity) * -1 + self.closest.physics.velocity)
+            )
         return res
