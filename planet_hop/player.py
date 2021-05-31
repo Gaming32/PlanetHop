@@ -16,7 +16,7 @@ from pygravity.twod import Vector2 as GravVector2
 
 MOVEMENT_SPEED = 10
 JUMP_SPEED = 150
-JUMP_TIME = 5
+JUMP_TIME = 0.11
 
 
 class Player(SmallObject):
@@ -46,6 +46,6 @@ class Player(SmallObject):
                 self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, GROUND_FRICTION, time_passed))
             elif dist < 1 + planet.atmosphere:
                 self.physics.velocity.set_to(*evaluate_friction(self.physics.velocity, self.closest.physics.velocity, AIR_FRICTION, time_passed))
-                self.jump_time -= 1
+                self.jump_time -= time_passed
         self.update_closest()
         return dv, movement
